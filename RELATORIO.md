@@ -1,4 +1,4 @@
-# Relatório — <seu nome> (<sua matrícula>)
+# Relatório — Gabryel Rodrigues Ferreira (3547)
 
 Relatório do projeto, preenchido na sua branch. Cada marco acrescenta a sua seção. Responda com as suas palavras e com
 os números da sua execução; cada resposta cabe em até 6 linhas, além das tabelas.
@@ -7,7 +7,10 @@ os números da sua execução; cada resposta cabe em até 6 linhas, além das ta
 
 ### Ambiente
 
-<!-- Cole aqui a saída de `which python` e da Etapa 0 do `python marco1.py`. -->
+~/venvs/prog2-venv/bin/python
+=== Etapa 0: ambiente ===
+Python 3.14.7 | NumPy 2.5.4 | fornecido 3.0
+
 
 ### R1 — Expressões regulares
 
@@ -31,9 +34,9 @@ Previsões registradas no commit: <!-- cole o hash curto do commit de previsões
 
 | Grandeza | Previsão | Medido |
 | --- | --- | --- |
-| Memória da lista / memória do `uint16` | | |
-| Tempo do laço / tempo vetorizado | | |
-| Tempo da compreensão / tempo do laço | | |
+| Memória da lista / memória do `uint16` | A lista vai ocupar mais memória que o array uint16.| |
+| Tempo do laço / tempo vetorizado |Espero que a vetorização seja mais rápida em muitos casos. | |
+| Tempo da compreensão / tempo do laço | Acho que a compreensão será muito mais rápida do que laço. | |
 
 <!-- Explique a maior diferença entre previsão e medição; por que uint16 * 20 dá 16364; que dtype você escolheria para contagens e para kPa. -->
 
@@ -50,5 +53,7 @@ Previsões registradas no commit: <!-- cole o hash curto do commit de previsões
 <!-- Explique o resultado que mais surpreendeu você. -->
 
 ### R7 — Issue #4
-
-<!-- Sintoma; o teste de regressão (nome); a causa, em termos da soma acumulada; a correção; por que os testes de aceitação não pegaram o defeito; mais um caso que eles não cobrem e qual teste seu o cobre. -->
+O sintoma é que a media movel retorna 570 invés de 571.
+O teste de regressão (test_media_move) avalia se a função retorna a quantidade correta.
+A causa foi que uso de acumulada[janela:] descartava um valor da soma acumulada, reduzindo em um a quantidade de resultados. Além disso, a primeira janela precisa ser tratada separadamente, pois não existe uma soma anterior a subtrair.
+Para corrigir isso utilizei acumulada[janela - 1:].copy() e subtraí as somas acumuladas anteriores apenas das posições seguintes. A solução não utiliza laços, não modifica a série original e retorna uma SerieTemporal.
