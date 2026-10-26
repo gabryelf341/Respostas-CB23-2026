@@ -145,46 +145,77 @@ def criar_conversores(escalas: dict[str, float]) -> dict[str, Callable[[float], 
 # Issue #3: memória e tempo
 # ---------------------------------------------------------------------------------------
 def medir_memoria(contagens: np.ndarray) -> dict[str, int]:
-    """Bytes ocupados pelas `contagens` (ndarray 1D de inteiros de 0 a 4095) em cada estrutura.
-
-    Devolve um dicionário com exatamente estas chaves:
-
-    - `"list"`: a lista `contagens.tolist()`; o total é `sys.getsizeof(lista)` mais a soma de
-      `sys.getsizeof(x)` para cada elemento `x`;
-    - `"array('H')"`: um `array.array("H", ...)`; conte só os dados (`itemsize * len`);
-    - `"uint16"`, `"int32"`, `"int64"`, `"float32"`, `"float64"`: o `ndarray` convertido para
-      esse `dtype`; conte só os dados (atributo `.nbytes`).
-
-    Levanta `ValueError` se `contagens` não for um ndarray 1D de inteiros.
-    """
-    raise NotImplementedError("issue #3: medir_memoria")
-
+    """Essa função mede a memória de uma contagem.
+    Args:
+        Recebe como parâmetro uam nparray.
+    Returns:
+        Retorna um dicionario [str,float] onde a chave representa a estrutura que a contagem esta armazenada internamente e a
+        memória que ela ocupa."""
+    if isinstance(contagens, np.ndarray) and contagens.ndim == 1 and np.issubdtype(contagens.dtype,np.integer):
+        contagemArr = array.array("H",contagens)
+        lista = contagens.tolist()
+        dicionario = {"list": sys.getsizeof(lista)+sum([sys.getsizeof(x) for x in lista]),
+                    "array('H')": contagemArr.itemsize*len(contagemArr),
+                    "uint16": contagens.astype(np.uint16).nbytes,
+                    "int32": contagens.astype(np.int32).nbytes,
+                    "int64": contagens.astype(np.int64).nbytes,
+                    "float32": contagens.astype(np.float32).nbytes,
+                    "float64": contagens.astype(np.float64).nbytes}
+        return dicionario
+    raise ValueError("Contagens não é 1D de inteiros.")
 
 def converter_laco(contagens: list[int]) -> list[float]:
-    """Converte contagens em kPa (`c * 600 / 4095`) com `for` e `append`."""
-    raise NotImplementedError("issue #3: converter_laco")
+    """Para converter a lista de inteiros em kPa (floats)
+    essa função cria uma lista vazia e adiciona item por item da lista original.
+    Args:
+        List: Uma lista de inteiros.
+    Returns:
+        List: Uma lista de float"""
+    lista = []
+    for c in contagens:
+        lista.append(float(c*600/4095))
+    return lista
 
 
 def converter_compreensao(contagens: list[int]) -> list[float]:
-    """Converte contagens em kPa (`c * 600 / 4095`) com uma compreensão de lista."""
-    raise NotImplementedError("issue #3: converter_compreensao")
+    """Usando compreensão de lista, essa função retorna uma lista com os valores
+    convertidos.
+    Args:
+        List: Uma lista de inteiros.
+    Returns:
+        List: Uma lista de float"""
+    return [float(c*600/4095) for c in contagens]
 
 
 def converter_map(contagens: list[int]) -> list[float]:
-    """Converte contagens em kPa (`c * 600 / 4095`) com `map` e uma lambda."""
-    raise NotImplementedError("issue #3: converter_map")
+    """Converte a lista original usando o map() e função lambda.
+    Args:p
+        List: Uma lista de inteiros.
+    Returns:
+        List: Uma lista de float"""
+    return list(map(lambda c: c*600/4095, contagens))
 
 
 def converter_vetorizado(contagens: np.ndarray) -> np.ndarray:
-    """Converte contagens em kPa (`c * 600 / 4095`) com uma operação vetorizada do NumPy."""
-    raise NotImplementedError("issue #3: converter_vetorizado")
+    """Converte uma array de inteiros em uma array de floats (kPa)
+    Args:
+        List:Uma array de inteiros.
+    Returns:
+        List: Uma arrat de float"""
+    return contagens * 600/4095
 
 
 def medir_tempos(contagens: np.ndarray, k: int = 10) -> dict[str, float]:
-    """Tempo médio (s) de cada versão da conversão, em `k` repetições.
-
-    Use `cronometrar` (de `fornecido.cronometro`). Chaves: `"laço"`, `"compreensão"` e
-    `"map+lambda"` (que recebem a lista `contagens.tolist()`, criada uma única vez, fora da
-    medição) e `"vetorizado"` (que recebe o próprio `ndarray`).
-    """
-    raise NotImplementedError("issue #3: medir_tempos")
+    """Essa função cria um dicionário [nome da função, tempo médio de execução]
+    para cada tipo de conversão.
+    Args:
+        Uma array e um parametro k que é quantas vezes realizamos a chamada da função.
+    Returns:
+        """
+    lista = contagens.tolist()
+    dicionario = {}
+    metodos = {"laço": converter_laco,"compreensão": converter_compreensao,"map+lambda": converter_map}
+    for nome, função in metodos.items():
+        dicionario[nome] = cronometrar(função,lista,k=k)
+    dicionario["vetorizado"] = cronometrar(converter_vetorizado,contagens,k=k)
+    return dicionario
