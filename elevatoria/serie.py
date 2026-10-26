@@ -35,7 +35,7 @@ class SerieTemporal(np.ndarray):
         acumulada = np.cumsum(self)
         somas = acumulada[janela - 1:].copy()
         somas[1:] -= acumulada[:-janela]
-        return SerieTemporal(somas / janela)
+        return (somas / janela).view(SerieTemporal)
 
     def variacao(self) -> SerieTemporal:
         """Diferenças entre pontos consecutivos (`n - 1` valores)."""

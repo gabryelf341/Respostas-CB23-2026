@@ -44,11 +44,11 @@ Previsões registradas no commit: <!-- cole o hash curto do commit de previsões
 
 | Expressão | Tipo previsto | Tipo observado |
 | --- | --- | --- |
-| `s + s` | | |
-| `s[1:]` | | |
-| `s * 2` | | |
-| `s.sum()` | | |
-| `s[0]` | | |
+| `s + s` |SerieTemporal| |
+| `s[1:]` |SerieTemporal| |
+| `s * 2` |SerieTemporal| |
+| `s.sum()` |Float| |
+| `s[0]` |Float| |
 
 <!-- Explique o resultado que mais surpreendeu você. -->
 
